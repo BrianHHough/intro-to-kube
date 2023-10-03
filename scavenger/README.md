@@ -307,7 +307,7 @@ I had to do `kubectl delete -f scavenger/k8s/nginx-pod.yml -n scavenger`
 and then this:
 I had to do `kubectl apply -f scavenger/k8s/nginx-pod.yml -n scavenger`
 
-# GitHub Actions
+# GitHub Actions 
 
 ```bash
 # create your branch
@@ -315,7 +315,7 @@ git checkout -b scavenger-brianhhough
 # add your local changes
 git add .
 # commit your changes
-git commit -m "<describe changes made>"
+git commit -m "completed kubernetes scavenger hunt"
 # push your changes to your upstream branch
-git push -u origin scavenger-<github-username>
+git push -u origin scavenger-brianhhough
 ```

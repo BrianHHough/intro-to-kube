@@ -8,9 +8,16 @@ metadata:
 spec:
   # TODO: Fill in the persistent volume specifications:
   # a. storageClassName as manual
+  storageClassName: "manual"
   # b. capacity as 5Gi
+  capacity:
+    storage: 5Gi
   # c. accessModes as ReadWriteMany
+  accessModes: 
+    - ReadWriteMany
   # d. hostPath as /mnt/data
+  hostPath: 
+    path: "/mnt/data"
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -21,5 +28,11 @@ metadata:
 spec:
   # TODO: Fill in the persistent volume claim specifications:
   # a. storageClassName as manual
+  storageClassName: "manual"
   # b. accessModes as ReadWriteMany
+  accessModes:
+    - ReadWriteMany
   # c. resource requests for storage to be 5Gi
+  resources:
+    requests:
+      storage: 5Gi

@@ -1,5 +1,7 @@
 # [Cyber Monday](https://uplimit.com/course/kubernetes-managing-containers-at-scale/v2/enrollment/enrollment_clj4nmkr201xv12aw259t4xtw/module/project-1-instructions)
 
+
+
 ## Disclaimer
 
 If this is your first time working with kubectl to discover cluster resources, we strongly recommended diving into the [Scavenger project](https://uplimit.com/course/kubernetes-managing-containers-at-scale/v2/enrollment/enrollment_clj4nmkr201xv12aw259t4xtw/module/scavenger-hunt) to learn about all about [minikube](https://minikube.sigs.k8s.io/docs/), k8s, and kubectl.

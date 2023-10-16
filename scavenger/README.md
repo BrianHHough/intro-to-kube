@@ -1,5 +1,8 @@
 # [Scavenger Hunt](https://uplimit.com/course/kubernetes-managing-containers-at-scale/v2/enrollment/enrollment_clj4nmkr201xv12aw259t4xtw/module/scavenger-hunt)
 
+
+[![Scavenger Hunt](https://github.com/BrianHHough/intro-to-kube/actions/workflows/scavenger.yml/badge.svg)](https://github.com/BrianHHough/intro-to-kube/actions/workflows/scavenger.yml)
+
 ## Note
 
 You can also follow along with the info through the Uplimit Course [here](https://uplimit.com/course/kubernetes-managing-containers-at-scale/v2/enrollment/enrollment_clj4nmkr201xv12aw259t4xtw/module/scavenger-hunt).

@@ -141,35 +141,142 @@ git push -u origin rbac-<github-username>
 
 0. Let's start with easiest [Role](https://kubernetes.io/docs/reference/access-authn-authz/rbac/) and [RoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/) to build. Let's give read only access to the `Intern` role by defining `get`, `watch`, and `list` actions to `Pod` and `Deployment` resources strictly to the `dev` namespace. Afterwards bind this `Role` to Jules via the `RoleBinding`. When you are ready run:
 
-   ```
-   kubectl apply -f ./roles/intern.yml
-   ```
+```bash
+kubectl apply -f ./roles/intern.yml
+```
 
-   To test if Jules has the proper restrictions in place by running:
-   ```
-   # change to the Jules user context
-   kubectl config use-context Jules-context
+To test if Jules has the proper restrictions in place by running:
 
-   # listing the pods within the staging namespace should fail ❌
-   kubectl get pods --namespace staging
+```bash
+# change to the Jules user context
+kubectl config use-context Jules-context
 
-   # creating resources should fail ❌
-   kubectl run my-pod --image=nginx --namespace dev
+# listing the pods within the staging namespace should fail ❌
+kubectl get pods --namespace staging
 
-   # listing the pods within the dev namespace should pass ✅ 
-   kubectl get pods --namespace dev
-   ```
+# creating resources should fail ❌
+kubectl run my-pod --image=nginx --namespace dev
+
+# listing the pods within the dev namespace should pass ✅ 
+kubectl get pods --namespace dev
+```
+
+My logs look like this:
+```bash
+# kubectl config use-context Jules-context
+Switched to context "Jules-context".
+
+# ❌ kubectl get pods --namespace staging
+Error from server (Forbidden): pods is forbidden: User "Jules" cannot list resource "pods" in API group "" in the namespace "staging"
+
+# ❌ kubectl run my-pod --image=nginx --namespace dev
+Error from server (Forbidden): pods is forbidden: User "Jules" cannot create resource "pods" in API group "" in the namespace "dev"
+
+# ✅ kubectl get pods --namespace dev
+NAME                               READY   STATUS    RESTARTS   AGE
+nginx-deployment-55f598f8d-2nw6k   1/1     Running   0          61m
+nginx-deployment-55f598f8d-5qjsm   1/1     Running   0          61m
+nginx-deployment-55f598f8d-szjpr   1/1     Running   0          61m
+
+```
+
 
       You can run similar tests for the remaining Roles and RoleBindings we will create next or look at the [Testing](#testing) for more details.
 
 1. The next Role to build will be `DBAdmin`. Here we want to grant the database admin to do any read/writes they need to any resources strictly within the `database` and `backup` namespaces. For this to happen, you will need to create a single Role and then create multiple RoleBindings per namespaces for the user Jessica:
 
-      ```
-      # first within the database ns, then backup ns
-      kubectl apply -f ./roles/db-admin.yml
-      ```
+```bash
+# first within the database ns, then backup ns
+kubectl apply -f ./roles/db-admin.yml
+```
 
-      Feel free to construct similar tests we did in step 0 or rely on the CI/CD to test your implementation. 
+The log output I saw was this:
+```bash
+role.rbac.authorization.k8s.io/DBAdmin created
+rolebinding.rbac.authorization.k8s.io/DBAdminBinding created
+```
+
+Feel free to construct similar tests we did in step 0 or rely on the CI/CD to test your implementation. 
+
+```bash
+# change to the Jules user context
+kubectl config use-context Jessica-context
+
+# listing the pods within the staging namespace should fail ❌
+kubectl get pods --namespace staging
+
+# creating resources should fail ❌
+kubectl run my-pod --image=nginx --namespace dev
+
+# listing the pods within the dev namespace should pass ✅ 
+kubectl get pods --namespace dev
+```
+
+The outputs I saw are the following:
+```bash
+# kubectl config use-context Jessica-context
+Switched to context "Jessica-context".
+
+# ❌ kubectl get pods --namespace staging
+Error from server (Forbidden): pods is forbidden: User "Jessica" cannot list resource "pods" in API group "" in the namespace "staging"
+
+# ✅ kubectl get pods --namespace database
+NAME           READY   STATUS    RESTARTS       AGE
+postgres-pod   1/1     Running   1 (8m1s ago)   100m
+
+# ✅ kubectl run db-pod --image=nginx --namespace=database
+pod/db-pod created
+
+
+# ✅ kubectl get pods --namespace backup
+kubectl get pods --namespace backup
+NAME           READY   STATUS    RESTARTS      AGE
+postgres-pod   1/1     Running   1 (23m ago)   116m
+
+# ✅ kubectl run backup-pod --image=nginx --namespace=backup
+pod/backup-pod created
+
+# ❌  kubectl get pods
+Error from server (Forbidden): pods is forbidden: User "Jessica" cannot list resource "pods" in API group "" in the namespace "default"
+
+```
+
+### 🐞 Bug: Jessica doesn't have the rolebinding for `backup`
+
+I noticed that they had access to get pods for the `--namespace database` but not `--namespace backup`
+
+I ran this: `kubectl get rolebinding -n backup` and it print4ed this error:
+```bash
+Error from server (Forbidden): rolebindings.rbac.authorization.k8s.io is forbidden: User "Jessica" cannot list resource "rolebindings" in API group "rbac.authorization.k8s.io" in the namespace "backup"
+```
+
+I had to apply the backup Rolebinding to the db-admin.yml file. Then once I did that, I switched out of Jessica mode to go to my origianl context with `kubectl config get-contexts`. 
+
+The output is this:
+```bash
+@BrianHHough ➜ /workspaces/intro-to-kube/rbac-to-the-future (rbac-brianhhough) $ kubectl config get-contexts
+CURRENT   NAME              CLUSTER    AUTHINFO   NAMESPACE
+*         Jessica-context   minikube   Jessica    
+          Jesus-context     minikube   Jesus      
+          Joey-context      minikube   Joey       
+          Jules-context     minikube   Jules      
+          minikube          minikube   minikube   default
+```
+
+I was able to switch to my original admin `minikube` and apply the updates here:
+```bash
+# kubectl config use-context minikube
+Switched to context "minikube".
+
+# kubectl apply -f ./roles/db-admin.yml
+role.rbac.authorization.k8s.io/DBAdmin unchanged
+role.rbac.authorization.k8s.io/DBAdmin created
+rolebinding.rbac.authorization.k8s.io/DBAdminBinding unchanged
+rolebinding.rbac.authorization.k8s.io/DBAdminBinding unchanged
+```
+
+I had to create a separate role for `backup` and then ensure the rolebinding had a connection to both the database and backup namespaces.
+
 
 2. For the next Role, it will follow a very similar date to step 1. Please create the `Developer` Role with full read/write access to all resources within the `prod`, `staging`, and `dev` namespaces. The exception here will be they can not DELETE any resources as that is the responsibility of the KubeAdmin. Apply the RoleBindings to Joey. Test as needed.
 

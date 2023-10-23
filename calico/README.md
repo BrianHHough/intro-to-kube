@@ -1,5 +1,7 @@
 # Calico Network Policy
 
+[![Calico](https://github.com/BrianHHough/intro-to-kube/actions/workflows/calico.yml/badge.svg)](https://github.com/BrianHHough/intro-to-kube/actions/workflows/calico.yml)
+
 ## Note
 
 You can also follow along with the info through the Uplimit Course [here](https://uplimit.com/course/kubernetes-managing-containers-at-scale/v2/module/project-3-instructions#corise_clm9w2tpt000k3b7ld7w684cy).
@@ -211,3 +213,7 @@ kubectl logs postgres -n namespace-c
 
 2. Fill out networking policy for namespace C under `network-policy-namespace-c.yml` and test your changes by pushing up a branch prefixed with `calico-`. See manual testing steps above under item 0. as needed.
 
+
+All checks pass: https://github.com/BrianHHough/intro-to-kube/actions/runs/6609006982/job/17948544388
+
+[![Calico](https://github.com/BrianHHough/intro-to-kube/actions/workflows/calico.yml/badge.svg)](https://github.com/BrianHHough/intro-to-kube/actions/workflows/calico.yml)

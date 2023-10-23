@@ -16,8 +16,8 @@ spec:
   ingress:
     - from:
       - namespaceSelector:
-        matchLabels:
-          name: namespace-b
+          matchLabels:
+            name: namespace-b
   egress:
     - to:
       - namespaceSelector:

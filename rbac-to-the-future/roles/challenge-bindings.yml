@@ -1,0 +1,236 @@
+# SOFTWARE ENGINEERING TEAM
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: software-engineers-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get", "list"]
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: software-engineers-role-binding-dev
+  namespace: dev
+subjects:
+- kind: Group
+  name: software-engineers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: software-engineers-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: software-engineers-role-binding-staging
+  namespace: staging
+subjects:
+- kind: Group
+  name: software-engineers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: software-engineers-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: software-engineers-role-binding-prod
+  namespace: prod
+subjects:
+- kind: Group
+  name: software-engineers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: software-engineers-role
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+
+
+
+
+
+# DATA ENGINEERING TEAM
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: data-engineers-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get", "list"]
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: data-engineers-role-binding-dev
+  namespace: dev
+subjects:
+- kind: Group
+  name: data-engineers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: data-engineers-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: data-engineers-role-binding-staging
+  namespace: staging
+subjects:
+- kind: Group
+  name: data-engineers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: data-engineers-role
+  apiGroup: rbac.authorization.k8s.io
+
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: data-engineers-role-binding-prod
+  namespace: prod
+subjects:
+- kind: Group
+  name: data-engineers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: data-engineers-role
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+
+# SOFTWARE ENGINEERING TEAM - CLUSTER
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: software-engineers-cluster-role
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: software-engineers-cluster-role-binding
+subjects:
+- kind: Group
+  name: software-engineers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: software-engineers-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+
+
+# DATA ENGINEERING TEAM - CLUSTER
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: data-engineers-cluster-role
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: data-engineers-cluster-role-binding
+subjects:
+- kind: Group
+  name: data-engineers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: data-engineers-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+
+
+# ADMIN - CLUSTER
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cluster-admin
+rules:
+- apiGroups: [""]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cluster-admin-binding-dev
+  namespace: dev
+subjects:
+- kind: User
+  name: cluster-admin-username
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cluster-admin-binding-staging
+  namespace: staging
+subjects:
+- kind: User
+  name: cluster-admin-username
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cluster-admin-binding-prod
+  namespace: prod
+subjects:
+- kind: User
+  name: cluster-admin-username
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io

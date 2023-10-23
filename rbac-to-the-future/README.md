@@ -52,7 +52,7 @@ bash create_users.sh
 ```
 
 Afterwards run `kubectl config view` and expect to see something like this under `contexts` and `users`
-```
+```bash
 kubectl config view
 ---
 apiVersion: v1
@@ -238,10 +238,9 @@ pod/backup-pod created
 
 # ❌  kubectl get pods
 Error from server (Forbidden): pods is forbidden: User "Jessica" cannot list resource "pods" in API group "" in the namespace "default"
-
 ```
 
-### 🐞 Bug: Jessica doesn't have the rolebinding for `backup`
+### 🐞 Debugging: Jessica doesn't have the rolebinding for `backup`
 
 I noticed that they had access to get pods for the `--namespace database` but not `--namespace backup`
 
@@ -280,16 +279,34 @@ I had to create a separate role for `backup` and then ensure the rolebinding had
 
 2. For the next Role, it will follow a very similar date to step 1. Please create the `Developer` Role with full read/write access to all resources within the `prod`, `staging`, and `dev` namespaces. The exception here will be they can not DELETE any resources as that is the responsibility of the KubeAdmin. Apply the RoleBindings to Joey. Test as needed.
 
-   ```
-   # re-run in dev, staging, and prod ns
-   kubectl apply -f ./roles/developer.yml
-   ```
+```bash
+# re-run in dev, staging, and prod ns
+kubectl apply -f ./roles/developer.yml
+```
+
+This printed out:
+```bash
+role.rbac.authorization.k8s.io/Developer configured
+rolebinding.rbac.authorization.k8s.io/DeveloperBinding created
+role.rbac.authorization.k8s.io/Developer created
+rolebinding.rbac.authorization.k8s.io/DeveloperBindingProd created
+role.rbac.authorization.k8s.io/Developer created
+rolebinding.rbac.authorization.k8s.io/DeveloperBindingStaging created
+```
+
+
 
 3. For our last role, we will work to build the `KubeAdmin` role. This role grants a lot more permissions so instead of using the traditional Role and RoleBinding we will define a [ClusterRole and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/). This is perfect for non-namespaced resource management which in our case we hope that our KubeAdmin has all the necessary privileges in place to do any operation across all namespaces in our cluster. Grant this ClusterRoleBinding to Jesus.
 
-   ```
-   kubectl apply -f ./roles/kube-admin.yml
-   ```
+```bash
+kubectl apply -f ./roles/kube-admin.yml
+```
+
+This outputted:
+```bash
+clusterrole.rbac.authorization.k8s.io/KubeAdmin created
+clusterrolebinding.rbac.authorization.k8s.io/KubeAdminClusterRoleBinding created
+```
 
 ## Challenge
 0. So far we have a relatively small team: you, Jessica, Jules, Joey, and Jesus. What if we get more engineers? What is there begins to be some specialization in the types of engineers we hire?
@@ -297,3 +314,28 @@ I had to create a separate role for `backup` and then ensure the rolebinding had
    In this challenge question, we will explore how we can introduce [Groups](https://kubernetes.io/docs/reference/access-authn-authz/rbac/) as a way to improve our overall access to our RBAC microservice world. Please extend the current Role/RoleBindings/ClusterRoles/ClusterRoleBindings to create two groups. Please also allocate the following people under these [Groups](https://kubernetes.io/docs/reference/access-authn-authz/rbac/): 
    - **Software Engineers** - Joey, Jesus, and Jules
    - **Data Engineers** - Jessica
+
+
+```bash
+kubectl apply -f ./roles/challenge-bindings.yml
+```
+
+The output was:
+```bash
+role.rbac.authorization.k8s.io/software-engineers-role created
+rolebinding.rbac.authorization.k8s.io/software-engineers-role-binding-dev created
+rolebinding.rbac.authorization.k8s.io/software-engineers-role-binding-staging created
+rolebinding.rbac.authorization.k8s.io/software-engineers-role-binding-prod created
+role.rbac.authorization.k8s.io/data-engineers-role created
+rolebinding.rbac.authorization.k8s.io/data-engineers-role-binding-dev created
+rolebinding.rbac.authorization.k8s.io/data-engineers-role-binding-staging created
+rolebinding.rbac.authorization.k8s.io/data-engineers-role-binding-prod created
+clusterrole.rbac.authorization.k8s.io/software-engineers-cluster-role created
+clusterrolebinding.rbac.authorization.k8s.io/software-engineers-cluster-role-binding created
+clusterrole.rbac.authorization.k8s.io/data-engineers-cluster-role created
+clusterrolebinding.rbac.authorization.k8s.io/data-engineers-cluster-role-binding created
+role.rbac.authorization.k8s.io/cluster-admin created
+rolebinding.rbac.authorization.k8s.io/cluster-admin-binding-dev created
+rolebinding.rbac.authorization.k8s.io/cluster-admin-binding-staging created
+rolebinding.rbac.authorization.k8s.io/cluster-admin-binding-prod created
+```

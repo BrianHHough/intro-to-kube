@@ -21,8 +21,13 @@ spec:
   egress:
     - to:
       - namespaceSelector:
-          matchLabels:
-            name: namespace-b
-      - namespaceSelector:
-          matchLabels:
-            name: namespace-c
+          matchExpressions:
+          - key: namespace
+            operator: In
+            values: ["namespace-b", "namespace-c"]
+      # - namespaceSelector:
+      #     matchLabels:
+      #       name: namespace-b
+      # - namespaceSelector:
+      #     matchLabels:
+      #       name: namespace-c

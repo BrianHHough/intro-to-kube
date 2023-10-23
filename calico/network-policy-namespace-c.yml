@@ -6,3 +6,12 @@ metadata:
 spec:
   # TODO:
   # Define ingress
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress # prohibit outbound traffic (Principle of Least Privilege)
+  ingress:
+    - from:
+      - namespaceSelector:
+        matchLabels:
+          name: namespace-a

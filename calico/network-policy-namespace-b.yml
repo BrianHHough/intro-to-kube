@@ -10,16 +10,16 @@ spec:
   podSelector: 
     matchLabels:
       name: nginx
-    policyTypes:
-      - Ingress
-      - Egress
-    ingress:
-      - from:
-        - namespaceSelector:
-            matchLabels:
-              name: namespace-a
-    egress:
-      - to:
-        - namespaceSelector:
-            matchLabels:
-              name: namespace-a
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: namespace-a
+  egress:
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            name: namespace-a

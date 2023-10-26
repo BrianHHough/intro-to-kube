@@ -5,3 +5,6 @@ metadata:
 spec:
   pipelineRef:
     name: build-push-deploy
+  params:
+    - name: REPO_URL
+      value: https://github.com/BrianHHough/intro-to-kube.git

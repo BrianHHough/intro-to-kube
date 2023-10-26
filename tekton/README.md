@@ -326,9 +326,109 @@ pipelinerun.tekton.dev/build-push-deploy created
 invalid input params for task deploy: missing values for these params which have no default values: [REPO_URL]
 ```
 
-This was because I originally had the `REPO_URL` in the `build-task` of my `build-push-deploy-pipeline.yml` file, but not in the `deploy-task`.
+This was because I originally had the `REPO_URL` in the `build-task` of my `build-push-deploy-pipeline.yml` file, but not in the `deploy-task`. I changed the `REPO_URL` to my project and deployed this a bunch of times, but I kept getting issues with the GitHub Action.
+
+I ran `tkn pipeline describe build-push-deploy` for validation testing locally, and got this output:
+```bash
+Name:        build-push-deploy
+Namespace:   default
+
+🗒  Tasks
+
+ NAME            TASKREF   RUNAFTER   TIMEOUT   PARAMS
+ ∙ build-task    build                ---       REPO_URL: https://github.com/expressjs/express.git
+ ∙ push-task     push                 ---       IMAGE_NAME: nginx:latest, DOCKERFILE_PATH: /workspace/source, CONTEXT_PATH: /workspace/source, CONTAINER_REGISTRY: registry.example.com, REGISTRY_USERNAME: Bob, REGISTRY_PASSWORD: password1234
+ ∙ deploy-task   deploy               ---       NAMESPACE: default, IMAGE: nginx:latest, REPO_URL: https://github.com/expressjs/express.git
+
+⛩  PipelineRuns
+
+ NAME                  STARTED      DURATION   STATUS
+ ∙ build-push-deploy   1 hour ago   0s         Failed(PipelineValidationFailed)
+```
+
+I see from the output that the `build-task`, `push-task`, and `deploy-task` all both ordered and referenced correctly for Tekton
+However, the `REPO_URL` in the `deploy-task` is referencing the wrong repo, it's referencing `https://github.com/expressjs/express.git`, but it should reference `https://github.com/BrianHHough/intro-to-kube.git`
+
+I updated the pipeline configuiration with this command: `kubectl apply -f build-push-deploy-pipeline.yml`
+
+Now the output of `tkn pipeline describe build-push-deploy` is this:
+```bash
+Name:        build-push-deploy
+Namespace:   default
+
+🗒  Tasks
+
+ NAME            TASKREF   RUNAFTER   TIMEOUT   PARAMS
+ ∙ build-task    build                ---       REPO_URL: https://github.com/expressjs/express.git
+ ∙ push-task     push                 ---       IMAGE_NAME: nginx:latest, DOCKERFILE_PATH: /workspace/source, CONTEXT_PATH: /workspace/source, CONTAINER_REGISTRY: registry.example.com, REGISTRY_USERNAME: Bob, REGISTRY_PASSWORD: password1234
+ ∙ deploy-task   deploy               ---       NAMESPACE: default, IMAGE: nginx:latest, REPO_URL: https://github.com/BrianHHough/intro-to-kube.git
+
+⛩  PipelineRuns
+
+ NAME                  STARTED      DURATION   STATUS
+ ∙ build-push-deploy   1 hour ago   0s         Failed(PipelineValidationFailed)
+```
+
+I needed to update my `build-push-deploy-pipelinerun.yml` file and then also delete the previous `build-push-deploy` PipelineRun  with `kubectl delete pipelinerun build-push-deploy`. This gave me this output:
+```bash
+pipelinerun.tekton.dev "build-push-deploy" deleted
+```
+
+I then applied the pipeline again: `kubectl apply -f build-push-deploy-pipelinerun.yml`. The output was:
+```bash
+pipelinerun.tekton.dev/build-push-deploy created
+```
+
+I then ran the pipeline: `tkn pipelinerun logs build-push-deploy -f -n default`. The output was:
+```bash
+...
+[build-task : run-tests] 
+[build-task : run-tests] 
+[build-task : run-tests]   1262 passing (10s)
+[build-task : run-tests] 
+[build-task : run-tests] npm notice 
+[build-task : run-tests] npm notice New patch version of npm available! 10.2.0 -> 10.2.1
+[build-task : run-tests] npm notice Changelog: <https://github.com/npm/cli/releases/tag/v10.2.1>
+[build-task : run-tests] npm notice Run `npm install -g npm@10.2.1` to update!
+[build-task : run-tests] npm notice 
+```
 
 
+This returned this output:
+```bash
+[push-task : push] NOTE: FOR CHALLENGE EXERCISE ONLY
+[push-task : push] ===========================================
+[push-task : push] This task does not push anything to the Docker's Container Registry
+[push-task : push] If you wish to do so, add the extension to minikube: https://minikube.sigs.k8s.io/docs/handbook/registry/
+[push-task : push] And modify the password, username, and registry links in the build-push-deploy.yml Pipeline
+[push-task : push] If you wish the automate the push of a real, existing repo, also change the REPO_URL in build.yml and ensure a Dockerfile is present at its root
+[push-task : push] Afterwards edit the  file to point to your image instead of the nginx default
+[push-task : push] ===========================================
+[push-task : push] Credentials
+[push-task : push] ===========================================
+[push-task : push] 
+[push-task : push] 
+[push-task : push] 
+[push-task : push] /tekton/scripts/script-0-bfqz6: line 9: nginx-deployment.yml: not found
+```
+
+
+```bash
+Name:        build-push-deploy
+Namespace:   default
+
+🗒  Tasks
+
+ NAME            TASKREF   RUNAFTER   TIMEOUT   PARAMS
+ ∙ build-task    build                ---       REPO_URL: https://github.com/expressjs/express.git
+ ∙ push-task     push                 ---       IMAGE_NAME: nginx:latest, DOCKERFILE_PATH: /workspace/source, CONTEXT_PATH: /workspace/source, CONTAINER_REGISTRY: registry.example.com, REGISTRY_USERNAME: Bob, REGISTRY_PASSWORD: password1234
+ ∙ deploy-task   deploy               ---       NAMESPACE: default, IMAGE: nginx:latest, REPO_URL: https://github.com/BrianHHough/intro-to-kube.git
+
+⛩  PipelineRuns
+
+ NAME                  STARTED         DURATION   STATUS
+ ∙ build-push-deploy   2 minutes ago   2m15s      Succeeded
+```
 
 
 ## Challenge

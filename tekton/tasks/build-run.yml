@@ -1,0 +1,8 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build
+spec:
+  params:
+    - name: REPO_URL
+      type: string

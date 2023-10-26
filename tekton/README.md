@@ -1,5 +1,7 @@
 # Tekton - CI/CD for K8s
 
+[![Tekton](https://github.com/BrianHHough/intro-to-kube/actions/workflows/tekton.yml/badge.svg)](https://github.com/BrianHHough/intro-to-kube/actions/workflows/tekton.yml)
+
 ## Note
 
 You can also follow along with the info through the Uplimit Course [here](https://uplimit.com/course/kubernetes-managing-containers-at-scale/v2/module/project-3-instructions#corise_clm9w276p000j3b7lvx4bov7v).
@@ -430,6 +432,10 @@ Namespace:   default
  ∙ build-push-deploy   2 minutes ago   2m15s      Succeeded
 ```
 
+Success! It worked! 🥳
+
+[![Tekton](https://github.com/BrianHHough/intro-to-kube/actions/workflows/tekton.yml/badge.svg)](https://github.com/BrianHHough/intro-to-kube/actions/workflows/tekton.yml)
+
 
 ## Challenge
 
@@ -440,6 +446,8 @@ Namespace:   default
     Now to get this working lets:
     
     a. Update `build.yml` and `build-push-deploy-pipeline.yml` to update the `REPO_URL`.
+
+I only needed to update the `REPO_URL` in the `build-push-deploy-pipeline.yml`, not the `build.yml` file becasue that references the variable. I define the variable's value in the pipeline file.
 
     b. Follow [this minikube guide on container registry add-ons](https://minikube.sigs.k8s.io/docs/handbook/registry/) to connect to your GitHub Container Registry account 
 
